@@ -17,6 +17,8 @@ var initQbCmd = &cobra.Command{
 		qb.Login()
 		qb.CreateCategory("BeeFlow", "")
 		qb.CreateCategory("BeeFlow+TV", "")
+		qb.CreateCategory("BeeFlow+RSS+TV", "")
+		qb.CreateCategory("BeeFlow+RSS+Movie", "")
 	},
 }
 

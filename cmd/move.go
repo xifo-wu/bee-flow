@@ -4,6 +4,7 @@ import (
 	"bee-flow/pkg"
 	"log"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/fatih/color"
@@ -65,11 +66,15 @@ func MoveCmdFunc(args []string) {
 }
 
 func moveFile(src string, dst string) {
-	cmd := exec.Command("rclone", "moveto", "-v", src, dst)
+	originalPath := filepath.Join(src, torrentName)
+	targetPath := filepath.Join(dst, torrentName)
+
+	cmd := exec.Command("rclone", "moveto", "-v", "-P", originalPath, targetPath)
+
 	if err := cmd.Run(); err != nil {
 		log.Println("Rclone Error")
 		log.Fatal(err)
 	}
 
-	pkg.Notification(torrentName)
+	pkg.Notification(torrentName + "下载完成")
 }
