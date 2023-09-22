@@ -52,10 +52,10 @@ func AddRSSRun(args []string) {
 	savePath := filepath.Join(viper.GetString("backup_path"), rssSavePath)
 
 	data := map[string]interface{}{
-		"enabled":        true,
-		"mustNotContain": "合集",
-		"useRegex":       true,
-		// "affectedFeeds":    [1]string{url},
+		"enabled":          true,
+		"mustNotContain":   "合集",
+		"useRegex":         true,
+		"affectedFeeds":    [1]string{url},
 		"assignedCategory": "BeeFlow",
 		"savePath":         savePath,
 		"addPaused":        true,
