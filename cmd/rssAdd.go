@@ -43,8 +43,8 @@ func AddRSSRun(args []string) {
 		return
 	}
 
-	if (mode == 1 || mode == 2) && tmdb == "" {
-		log.Println("重命名模式为 1 或 2 时 TMDB 链接必须填写")
+	if mode <= 4 && tmdb == "" {
+		log.Println("重命名模式为 1 到 4 时 TMDB 链接必须填写。 请添加 -t 标识")
 		return
 	}
 
