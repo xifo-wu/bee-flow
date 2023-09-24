@@ -20,7 +20,7 @@ var (
 
 var rssAddCmd = &cobra.Command{
 	Use:   "add",
-	Short: "添加一个新的 RSS 订阅",
+	Short: "[暂不支持相同路径]添加一个新的 RSS 订阅",
 	Run: func(cmd *cobra.Command, args []string) {
 		AddRSSRun(args)
 	},
@@ -74,6 +74,8 @@ func AddRSSRun(args []string) {
 	}
 
 	db := pkg.FindOrCreateData()
+
+	// 获取对应的名字和年份
 
 	db[savePath] = map[string]interface{}{
 		"mode": mode,

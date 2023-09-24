@@ -16,9 +16,6 @@ var initQbCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		qb.Login()
 		qb.CreateCategory("BeeFlow", "")
-		qb.CreateCategory("BeeFlow+TV", "")
-		qb.CreateCategory("BeeFlow+RSS+TV", "")
-		qb.CreateCategory("BeeFlow+RSS+Movie", "")
 	},
 }
 

@@ -4,7 +4,6 @@ import (
 	"bee-flow/pkg"
 	"log"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
 	"github.com/fatih/color"
@@ -35,22 +34,16 @@ var moveCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(moveCmd)
 
-	rootCmd.PersistentFlags().StringVarP(&torrentName, "name", "n", "", "Torrent 名称")
-	rootCmd.PersistentFlags().StringVarP(&category, "category", "l", "", "分类")
-	rootCmd.PersistentFlags().StringVarP(&contentPath, "contentPath", "f", "", "内容路径（与多文件 torrent 的根目录相同）")
-	rootCmd.PersistentFlags().StringVarP(&rootPath, "rootPath", "r", "", "根目录（第一个 torrent 的子目录路径）")
-	rootCmd.PersistentFlags().StringVarP(&savePath, "savePath", "d", "", "保存路径")
-	rootCmd.PersistentFlags().StringVarP(&torrentSize, "torrentSize", "z", "", "Torrent 大小（字节）")
-	rootCmd.PersistentFlags().StringVarP(&infoHash, "infoHash", "i", "", "T信息哈希值 v1")
+	moveCmd.Flags().StringVarP(&torrentName, "name", "n", "", "Torrent 名称")
+	moveCmd.Flags().StringVarP(&category, "category", "l", "", "分类")
+	moveCmd.Flags().StringVarP(&contentPath, "contentPath", "f", "", "内容路径（与多文件 torrent 的根目录相同）")
+	moveCmd.Flags().StringVarP(&rootPath, "rootPath", "r", "", "根目录（第一个 torrent 的子目录路径）")
+	moveCmd.Flags().StringVarP(&savePath, "savePath", "d", "", "保存路径")
+	moveCmd.Flags().StringVarP(&torrentSize, "torrentSize", "z", "", "Torrent 大小（字节）")
+	moveCmd.Flags().StringVarP(&infoHash, "infoHash", "i", "", "T信息哈希值 v1")
 }
 
 func MoveCmdFunc(args []string) {
-	// 根据分类执行不同命令
-
-	// isRss := strings.Contains(category, "RSS")
-	// isTV := strings.Contains(category, "TV")
-	// isMovie := strings.Contains(category, "Movie")
-
 	if !strings.Contains(category, "BeeFlow") {
 		red := color.New(color.FgRed)
 		red.Print("非 BeeFlow 相关分类不运行")
@@ -58,23 +51,29 @@ func MoveCmdFunc(args []string) {
 		return
 	}
 
-	// 如果只是 BeeFlow 就只执行备份
-	if category == "BeeFlow" {
-		moveFile(savePath, viper.GetString("backup_path"))
-		return
+	db := pkg.FindOrCreateData()
+	item, ok := db[savePath]
+
+	newNames := make([]string, 0)
+
+	if ok {
+		newNames = pkg.Rename(torrentName, savePath, item)
+	}
+
+	for _, file := range newNames {
+		backPath := strings.Replace(file, viper.GetString("save_base_path"), viper.GetString("backup_path"), 1)
+
+		moveFile(file, backPath)
 	}
 }
 
 func moveFile(src string, dst string) {
-	originalPath := filepath.Join(src, torrentName)
-	targetPath := filepath.Join(dst, torrentName)
-
-	cmd := exec.Command("rclone", "moveto", "-v", "-P", originalPath, targetPath)
+	cmd := exec.Command("rclone", "moveto", "-v", "-P", src, dst)
 
 	if err := cmd.Run(); err != nil {
 		log.Println("Rclone Error")
 		log.Fatal(err)
 	}
 
-	pkg.Notification(torrentName + "下载完成")
+	pkg.Notification(src + "下载完成")
 }

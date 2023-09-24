@@ -16,6 +16,4 @@
 - 其他模式（懒得起名字）：
   - 模式 ```1``` : 日常 S01E01.mp4
   - 模式 ```2``` : 日常 - S01E01 - 1080P.内封简繁.mp4
-  - 模式 ```3``` : Nichijou: My Ordinary Life S01E01.mp4
-  - 模式 ```4``` : Nichijou: My Ordinary Life - S01E01 - 1080P.mp4
-  - 模式 ```5``` : 只是将原种子名称内不符合 SxxExx 改成 SxxExx
+  - 模式 ```3``` : 只是将原种子名称内不符合 SxxExx 改成 SxxExx

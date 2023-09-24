@@ -12,7 +12,7 @@ var longDesc = `
 将支持使用 rclone 自动转移以及重命名，刮削等功能。
 ===============================================
 
-源码地址： https://github.com
+源码地址： https://github.com/xifo-wu/bee-flow
 文档地址： https://blog.xifo.in
 `
 
