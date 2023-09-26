@@ -76,19 +76,17 @@ func MoveCmdFunc(args []string) {
 
 		moveFile(file, backPath)
 
-		sleepDuration := 1 * time.Minute
-		time.Sleep(sleepDuration)
+		telegramChannelID := viper.GetString("telegram_channel_id")
+		if telegramChannelID != "" {
+			sleepDuration := 1 * time.Minute
+			time.Sleep(sleepDuration)
 
-		NotificationTGChannel(file, item)
+			NotificationTGChannel(file, item)
+		}
 	}
 }
 
 func NotificationTGChannel(src string, data map[string]interface{}) {
-	telegramChannelID := viper.GetString("telegram_channel_id")
-	if telegramChannelID == "" {
-		return
-	}
-
 	// 使用 filepath.Base 获取文件名称（包括扩展名）
 	fullFileName := filepath.Base(src)
 
