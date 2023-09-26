@@ -35,17 +35,17 @@ func FindOrCreateData() map[string]map[string]interface{} {
 
 func UpdateData(content map[string]map[string]interface{}) bool {
 	dataPath := viper.GetString("data_path")
-	file, err := os.OpenFile(dataPath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 
+	// 将内容编码为 JSON 格式
+	jsonData, err := json.Marshal(content)
 	if err != nil {
-		log.Println("无法打开/创建文件:", err)
+		log.Println("编码JSON失败:", err)
 		return false
 	}
 
-	file.Seek(0, 0) // 将文件指针移回文件开头
-	encoder := json.NewEncoder(file)
-	if err := encoder.Encode(content); err != nil {
-		log.Println("编码JSON失败:", err)
+	// 使用 os.WriteFile 将内容写入文件，替换整个文件
+	if err := os.WriteFile(dataPath, jsonData, os.ModePerm); err != nil {
+		log.Println("写入文件失败:", err)
 		return false
 	}
 

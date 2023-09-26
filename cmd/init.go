@@ -69,6 +69,7 @@ func InitConfig() {
 		viper.SetDefault("HDHIVE_PASSWORD", "")
 		viper.SetDefault("HDHIVE_TOKEN", "")
 		viper.SetDefault("BACKUP_PATH", "")
+		viper.SetDefault("SAVE_BASE_PATH", "/root/downloads")
 
 		e := viper.WriteConfigAs(filePath)
 		fmt.Println(currentDir, "currentDir", e, "Eee")

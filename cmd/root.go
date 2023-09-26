@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bee-flow/cmd/rss"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -31,7 +32,10 @@ var (
 
 func init() {
 	cobra.OnInitialize(InitConfig)
+
 	rootCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "配置文件 (默认地址为 $HOME/.config/bee-flow/config.yaml)")
+
+	rootCmd.AddCommand(rss.RssCmd)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

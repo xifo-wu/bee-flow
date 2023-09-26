@@ -2,8 +2,11 @@ package cmd
 
 import (
 	"bee-flow/pkg"
+	"bee-flow/pkg/hdhive"
 	"log"
 	"os/exec"
+	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/fatih/color"
@@ -61,10 +64,35 @@ func MoveCmdFunc(args []string) {
 	}
 
 	for _, file := range newNames {
-		backPath := strings.Replace(file, viper.GetString("save_base_path"), viper.GetString("backup_path"), 1)
+		backPath, ok := item["backupPath"]
+		if !ok {
+			backPath = strings.Replace(file, viper.GetString("save_base_path"), viper.GetString("backup_path"), 1)
+		}
 
-		moveFile(file, backPath)
+		log.Println("移动到: ", backPath)
+
+		// moveFile(file, backPath, item)
+		NotificationTGChannel(file, item)
 	}
+}
+
+func NotificationTGChannel(src string, data map[string]interface{}) {
+	telegramChannelID := viper.GetString("telegram_channel_id")
+	if telegramChannelID == "" {
+		return
+	}
+
+	// 使用 filepath.Base 获取文件名称（包括扩展名）
+	fullFileName := filepath.Base(src)
+
+	videoRe := regexp.MustCompile(`\.(mp4|mov|avi|wmv|mkv|flv|webm|vob|rmvb|mpg|mpeg)$`)
+	if !videoRe.MatchString(strings.ToLower(fullFileName)) {
+		return
+	}
+
+	hdhive.Notification(src, data)
+
+	log.Println("同步完成")
 }
 
 func moveFile(src string, dst string) {

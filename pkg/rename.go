@@ -72,8 +72,6 @@ func MoveToParentDir(path string, torrentName string) []string {
 		}
 	}
 
-	// TODO 剩下空文件夹就删掉
-
 	return filesNames
 }
 
@@ -97,21 +95,35 @@ func RenameFile(item map[string]interface{}, path string, filename string) strin
 
 	log.Println("filename: ", filename)
 	if mode.(float64) == 1 {
-		name := item["name"]
-		return RenameMode1(path, filename, name.(string))
+		return RenameMode1(path, filename, item)
+	}
+
+	if mode.(float64) == 2 {
+		return RenameMode2(path, filename, item)
 	}
 
 	return filename
 }
 
-func RenameMode1(path string, filename string, itemName string) string {
-	SE := GenerateSeasonAndEpisode(path, filename)
+func RenameMode1(path string, filename string, item map[string]interface{}) string {
+	offset := item["offset"]
+	SE := GenerateSeasonAndEpisode(path, filename, offset.(float64))
 	ext := filepath.Ext(filename)
 
-	return fmt.Sprintf("%s %s%s", itemName, SE, ext)
+	return fmt.Sprintf("%s %s%s", item["name"], SE, ext)
 }
 
-func GenerateSeasonAndEpisode(path string, filename string) string {
+func RenameMode2(path string, filename string, item map[string]interface{}) string {
+	offset := item["offset"]
+	SE := GenerateSeasonAndEpisode(path, filename, offset.(float64))
+	ext := filepath.Ext(filename)
+	name := item["name"]
+	multiVersion := GenerateMultiVersion(item)
+
+	return fmt.Sprintf("%s - %s - %s%s", name, SE, multiVersion, ext)
+}
+
+func GenerateSeasonAndEpisode(path string, filename string, offset float64) string {
 	log.Print(path, "pathpathpath")
 	standardTitleRe := regexp.MustCompile(`S\d+E\d+`)
 	// 查找第一个匹配的子字符串
@@ -134,8 +146,31 @@ func GenerateSeasonAndEpisode(path string, filename string) string {
 	torrentInfo := torrent.TorrentNameParse(filename, path)
 
 	if math.Floor(torrentInfo.Episode) == torrentInfo.Episode {
-		return fmt.Sprintf("S%02dE%02d", seasonNumber, int(torrentInfo.Episode))
+		return fmt.Sprintf("S%02dE%02d", seasonNumber, int(torrentInfo.Episode)-int(offset))
 	}
 
-	return fmt.Sprintf("S%02dE%04.1f", seasonNumber, torrentInfo.Episode)
+	return fmt.Sprintf("S%02dE%04.1f", seasonNumber, torrentInfo.Episode-offset)
+}
+
+func GenerateMultiVersion(item map[string]interface{}) string {
+	multiVersion, ok := (item["multiVersion"]).(string)
+
+	if !ok {
+		group, ok := item["group"]
+		if ok {
+			multiVersion += fmt.Sprintf("%s", group)
+		}
+
+		resolution, ok := item["resolution"]
+		if ok {
+			multiVersion += fmt.Sprintf(".%s", resolution)
+		}
+
+		subtitle, ok := item["subtitle"]
+		if ok {
+			multiVersion += fmt.Sprintf(".%s", subtitle)
+		}
+	}
+
+	return multiVersion
 }

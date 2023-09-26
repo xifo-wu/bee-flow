@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 
@@ -23,7 +24,7 @@ func AddRSSFeed(feedUrl string, path string) bool {
 
 	err := writer.Close()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return false
 	}
 
@@ -31,7 +32,7 @@ func AddRSSFeed(feedUrl string, path string) bool {
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return false
 	}
 	req.Header.Add("Cookie", "SID="+viper.GetString("QB_SID"))
@@ -39,17 +40,17 @@ func AddRSSFeed(feedUrl string, path string) bool {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return false
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return false
 	}
 
-	fmt.Println(string(body), res.StatusCode)
+	log.Println(string(body), res.StatusCode)
 	return res.StatusCode > 200
 }
