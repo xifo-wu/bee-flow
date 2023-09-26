@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -64,13 +65,20 @@ func MoveCmdFunc(args []string) {
 	}
 
 	for _, file := range newNames {
-		backPath, ok := item["backupPath"]
+		backPath, ok := item["backupPath"].(string)
 		if !ok {
 			backPath = strings.Replace(file, viper.GetString("save_base_path"), viper.GetString("backup_path"), 1)
 		}
 
-		log.Println("移动到: ", backPath)
-		moveFile(file, backPath.(string))
+		// 使用 filepath.Base 获取文件名称（包括扩展名）
+		fullFileName := filepath.Base(file)
+		backPath = filepath.Join(backPath, fullFileName)
+
+		moveFile(file, backPath)
+
+		sleepDuration := 1 * time.Minute
+		time.Sleep(sleepDuration)
+
 		NotificationTGChannel(file, item)
 	}
 }
