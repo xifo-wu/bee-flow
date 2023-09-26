@@ -70,8 +70,7 @@ func MoveCmdFunc(args []string) {
 		}
 
 		log.Println("移动到: ", backPath)
-
-		// moveFile(file, backPath, item)
+		moveFile(file, backPath.(string))
 		NotificationTGChannel(file, item)
 	}
 }
