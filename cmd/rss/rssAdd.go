@@ -12,18 +12,19 @@ import (
 )
 
 var (
-	backupPath    string
-	renameMode    int
-	name          string
-	year          int
-	season        int
-	rssSavePath   string
-	group         string
-	offset        int
-	resolution    string
-	subtitle      string
-	multiVersion  string
-	hdhiveShareId string
+	backupPath     string
+	renameMode     int
+	name           string
+	year           int
+	season         int
+	rssSavePath    string
+	group          string
+	offset         int
+	resolution     string
+	subtitle       string
+	multiVersion   string
+	hdhiveShareId  string
+	mustNotContain string
 )
 
 var rssAddCmd = &cobra.Command{
@@ -50,6 +51,8 @@ func init() {
 	rssAddCmd.Flags().StringVarP(&rssSavePath, "savePath", "r", "", "下载保存的地址，会自动加上配置内的路径")
 	rssAddCmd.Flags().StringVarP(&multiVersion, "multiVersion", "", "", "多版本信息，mode2 专用")
 	rssAddCmd.Flags().StringVarP(&hdhiveShareId, "hdhiveShareId", "", "", "通过影巢通知到频道参数，影巢分享记录ID")
+	rssAddCmd.Flags().StringVarP(&mustNotContain, "mustNotContain", "", "", "RSS 订阅不可包含（填写正则表达式）")
+
 }
 
 // AddRSSRun 向 qbittorrent 添加一个订阅，并创建自动下载器等
@@ -68,14 +71,18 @@ func AddRSSRun(args []string) {
 	url := args[0]
 	savePath := filepath.Join(viper.GetString("save_base_path"), rssSavePath)
 
+	if mustNotContain == "" {
+		mustNotContain = "合集"
+	}
+
 	data := map[string]interface{}{
 		"enabled":          true,
-		"mustNotContain":   "合集",
+		"mustNotContain":   mustNotContain,
 		"useRegex":         true,
 		"affectedFeeds":    [1]string{url},
 		"assignedCategory": "BeeFlow",
 		"savePath":         savePath,
-		"addPaused":        true,
+		"addPaused":        false,
 	}
 
 	jsonData, err := json.Marshal(data)

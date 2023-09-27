@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -58,6 +59,7 @@ func MoveCmdFunc(args []string) {
 	item, isItemOk := db[savePath]
 
 	newNames := pkg.Rename(torrentName, savePath)
+
 	for _, file := range newNames {
 		backPath := viper.GetString("backup_path")
 
@@ -77,8 +79,8 @@ func MoveCmdFunc(args []string) {
 
 		telegramChannelID := viper.GetString("telegram_channel_id")
 		if telegramChannelID != "" {
-			// sleepDuration := 1 * time.Minute
-			// time.Sleep(sleepDuration)
+			sleepDuration := 1 * time.Minute
+			time.Sleep(sleepDuration)
 
 			NotificationTGChannel(file, item)
 		}

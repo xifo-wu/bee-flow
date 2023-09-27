@@ -90,9 +90,14 @@ func RenameFile(item map[string]interface{}, path string, filename string) strin
 	}
 
 	// zip 文件跳过重命名
-	collectionRe := regexp.MustCompile(`(?i)(\d+-\d+|第\d+-\d+集|合集|\.zip)`)
+	collectionRe := regexp.MustCompile(`(?i)(\d+-\d+|第\d+-\d+集|合集)`)
 	if collectionRe.FindString(filename) != "" {
 		// 暂时什么都不处理
+		return filename
+	}
+
+	assRe := regexp.MustCompile(`(?i)\.(zip|7z)$`)
+	if assRe.MatchString(filename) {
 		return filename
 	}
 
@@ -128,8 +133,8 @@ func RenameMode2(path string, filename string, item map[string]interface{}) stri
 	name := item["name"]
 	multiVersion := GenerateMultiVersion(item)
 
-	languageCode := ""
-	if ext == "ass" {
+	if ext == ".ass" {
+		languageCode := ""
 		// 字幕重命名
 		// 寻找语言关键字 CHS CHT
 		// 正则表达式模式
@@ -139,10 +144,10 @@ func RenameMode2(path string, filename string, item map[string]interface{}) stri
 			languageCode = match[1]
 			fmt.Printf("语言代码: %s\n", languageCode)
 		}
-	}
 
-	if languageCode != "" {
-		return fmt.Sprintf("%s - %s - %s.%s.%s", name, SE, multiVersion, languageCode, ext)
+		if languageCode != "" {
+			return fmt.Sprintf("%s - %s - %s.%s.%s", name, SE, multiVersion, languageCode, ext)
+		}
 	}
 
 	return fmt.Sprintf("%s - %s - %s%s", name, SE, multiVersion, ext)
