@@ -55,18 +55,18 @@ func MoveCmdFunc(args []string) {
 	}
 
 	db := pkg.FindOrCreateData()
-	item, ok := db[savePath]
+	item, isItemOk := db[savePath]
 
-	newNames := make([]string, 0)
-
-	if ok {
-		newNames = pkg.Rename(torrentName, savePath, item)
-	}
-
+	newNames := pkg.Rename(torrentName, savePath)
 	for _, file := range newNames {
-		backPath, ok := item["backupPath"].(string)
-		if !ok {
-			backPath = strings.Replace(file, viper.GetString("save_base_path"), viper.GetString("backup_path"), 1)
+		backPath := viper.GetString("backup_path")
+
+		if isItemOk {
+			ok := false
+			backPath, ok = item["backupPath"].(string)
+			if !ok {
+				backPath = strings.Replace(file, viper.GetString("save_base_path"), viper.GetString("backup_path"), 1)
+			}
 		}
 
 		// 使用 filepath.Base 获取文件名称（包括扩展名）

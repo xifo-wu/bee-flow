@@ -11,7 +11,11 @@ import (
 	"strconv"
 )
 
-func Rename(torrentName string, path string, item map[string]interface{}) []string {
+func Rename(torrentName string, path string) []string {
+	// 读取存储的数据
+	db := FindOrCreateData()
+	item, isItemOk := db[path]
+
 	// qb 下载保持到的位置，可能是文件也可能是文件夹
 	downloadPath := filepath.Join(path, torrentName)
 	var files []string
@@ -31,13 +35,17 @@ func Rename(torrentName string, path string, item map[string]interface{}) []stri
 	newNames := make([]string, 0, len(files))
 
 	for _, file := range files {
-		newName := RenameFile(item, path, file)
-		oldPath := filepath.Join(path, file)
-		newPath := filepath.Join(path, newName)
+		if isItemOk {
+			newName := RenameFile(item, path, file)
+			oldPath := filepath.Join(path, file)
+			newPath := filepath.Join(path, newName)
 
-		os.Rename(oldPath, newPath)
-
-		newNames = append(newNames, newPath)
+			os.Rename(oldPath, newPath)
+			newNames = append(newNames, newPath)
+		} else {
+			newPath := filepath.Join(path, file)
+			newNames = append(newNames, newPath)
+		}
 	}
 
 	return newNames
@@ -119,6 +127,23 @@ func RenameMode2(path string, filename string, item map[string]interface{}) stri
 	ext := filepath.Ext(filename)
 	name := item["name"]
 	multiVersion := GenerateMultiVersion(item)
+
+	languageCode := ""
+	if ext == "ass" {
+		// 字幕重命名
+		// 寻找语言关键字 CHS CHT
+		// 正则表达式模式
+		re := regexp.MustCompile(`(?i)\.(CHS|CHT|SC|TC)\.ass`)
+		match := re.FindStringSubmatch(filename)
+		if len(match) > 1 {
+			languageCode = match[1]
+			fmt.Printf("语言代码: %s\n", languageCode)
+		}
+	}
+
+	if languageCode != "" {
+		return fmt.Sprintf("%s - %s - %s.%s.%s", name, SE, multiVersion, languageCode, ext)
+	}
 
 	return fmt.Sprintf("%s - %s - %s%s", name, SE, multiVersion, ext)
 }
