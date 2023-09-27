@@ -3,6 +3,8 @@ package cmd
 import (
 	"bee-flow/pkg"
 	"bee-flow/pkg/hdhive"
+	"bee-flow/pkg/logger"
+	"fmt"
 	"log"
 	"os/exec"
 	"path/filepath"
@@ -48,14 +50,13 @@ func init() {
 
 func MoveCmdFunc(args []string) {
 	if !strings.Contains(category, "BeeFlow") {
-		red := color.New(color.FgRed)
-		red.Print("非 BeeFlow 相关分类不运行")
-
+		logger.Logger.Info("非 BeeFlow 相关分类不运行")
+		color.Red("非 BeeFlow 相关分类不运行")
 		return
 	}
 
-	db := pkg.FindOrCreateData()
-	item, isItemOk := db[savePath]
+	item := viper.GetStringMap(fmt.Sprintf("data.%s", savePath))
+	isItemOk := len(item) > 0
 
 	newNames := pkg.Rename(torrentName, savePath)
 
@@ -64,7 +65,7 @@ func MoveCmdFunc(args []string) {
 
 		if isItemOk {
 			ok := false
-			backPath, ok = item["backupPath"].(string)
+			backPath, ok = item["backup_path"].(string)
 			if !ok {
 				backPath = strings.Replace(file, viper.GetString("save_base_path"), viper.GetString("backup_path"), 1)
 			}
@@ -74,6 +75,8 @@ func MoveCmdFunc(args []string) {
 		fullFileName := filepath.Base(file)
 		backPath = filepath.Join(backPath, fullFileName)
 
+		logger.Logger.Info("File: " + file)
+		logger.Logger.Info("BackPath: " + backPath)
 		moveFile(file, backPath)
 
 		telegramChannelID := viper.GetString("telegram_channel_id")

@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"bee-flow/pkg/logger"
 	"bee-flow/pkg/torrent"
 	"fmt"
 	"log"
@@ -9,12 +10,14 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+
+	"github.com/spf13/viper"
 )
 
 func Rename(torrentName string, path string) []string {
 	// 读取存储的数据
-	db := FindOrCreateData()
-	item, isItemOk := db[path]
+	item := viper.GetStringMap(fmt.Sprintf("data.%s", path))
+	isItemOk := len(item) > 0
 
 	// qb 下载保持到的位置，可能是文件也可能是文件夹
 	downloadPath := filepath.Join(path, torrentName)
@@ -26,15 +29,17 @@ func Rename(torrentName string, path string) []string {
 	}
 
 	if !file.Mode().IsRegular() {
+		logger.Logger.Info("下载目标为目录，开始移动到父目录")
 		files = append(files, MoveToParentDir(path, torrentName)...)
 	} else {
 		files = append(files, torrentName)
 	}
 
-	log.Println(files, "files")
 	newNames := make([]string, 0, len(files))
 
 	for _, file := range files {
+		logger.Logger.Info("重命名开始：" + file)
+		logger.Logger.Info(fmt.Sprintf("是否存在于数据库中：%t", isItemOk))
 		if isItemOk {
 			newName := RenameFile(item, path, file)
 			oldPath := filepath.Join(path, file)
@@ -42,9 +47,12 @@ func Rename(torrentName string, path string) []string {
 
 			os.Rename(oldPath, newPath)
 			newNames = append(newNames, newPath)
+
+			logger.Logger.Info("新文件名：" + newPath)
 		} else {
 			newPath := filepath.Join(path, file)
 			newNames = append(newNames, newPath)
+			logger.Logger.Info("新文件名：" + newPath)
 		}
 	}
 
@@ -101,17 +109,18 @@ func RenameFile(item map[string]interface{}, path string, filename string) strin
 		return filename
 	}
 
-	mode, ok := item["mode"]
-	if !ok || mode.(float64) == 0 {
+	mode, ok := item["mode"].(float64)
+	logger.Logger.Info(fmt.Sprintf("重命名模式：%f", mode))
+	if !ok || mode == 0 {
 		return filename
 	}
 
 	log.Println("filename: ", filename)
-	if mode.(float64) == 1 {
+	if mode == 1 {
 		return RenameMode1(path, filename, item)
 	}
 
-	if mode.(float64) == 2 {
+	if mode == 2 {
 		return RenameMode2(path, filename, item)
 	}
 
@@ -183,7 +192,7 @@ func GenerateSeasonAndEpisode(path string, filename string, offset float64) stri
 }
 
 func GenerateMultiVersion(item map[string]interface{}) string {
-	multiVersion, ok := (item["multiVersion"]).(string)
+	multiVersion, ok := (item["multi_version"]).(string)
 
 	if !ok {
 		group, ok := item["group"]

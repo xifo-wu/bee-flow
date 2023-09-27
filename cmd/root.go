@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"bee-flow/cmd/rss"
+	"bee-flow/pkg/logger"
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -31,6 +33,14 @@ var (
 )
 
 func init() {
+	// 初始化日志记录器
+	err := logger.InitLogger()
+	if err != nil {
+		fmt.Println("Failed to initialize logger:", err)
+		os.Exit(1)
+	}
+	defer logger.Logger.Sync()
+
 	cobra.OnInitialize(InitConfig)
 
 	rootCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "配置文件 (默认地址为 $HOME/.config/bee-flow/config.yaml)")

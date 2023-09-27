@@ -39,7 +39,7 @@ func InitConfig() {
 		os.Exit(1)
 	}
 
-	filePath := filepath.Join(home, ".config", "bee-flow", "config.yaml")
+	filePath := filepath.Join(home, ".config", "bee-flow", "config.json")
 	currentDir := filepath.Dir(filePath)
 
 	if CfgFile != "" {
@@ -47,7 +47,7 @@ func InitConfig() {
 		viper.SetConfigFile(CfgFile)
 	} else {
 		viper.SetConfigName("config")
-		viper.SetConfigType("yaml")
+		viper.SetConfigType("json")
 		viper.AddConfigPath(currentDir)
 	}
 

@@ -1,12 +1,14 @@
 package rss
 
 import (
-	"bee-flow/pkg"
+	"bee-flow/pkg/logger"
 	"bee-flow/pkg/qb"
 	"encoding/json"
+	"fmt"
 	"log"
 	"path/filepath"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -52,14 +54,18 @@ func init() {
 	rssAddCmd.Flags().StringVarP(&multiVersion, "multiVersion", "", "", "多版本信息，mode2 专用")
 	rssAddCmd.Flags().StringVarP(&hdhiveShareId, "hdhiveShareId", "", "", "通过影巢通知到频道参数，影巢分享记录ID")
 	rssAddCmd.Flags().StringVarP(&mustNotContain, "mustNotContain", "", "", "RSS 订阅不可包含（填写正则表达式）")
-
 }
 
 // AddRSSRun 向 qbittorrent 添加一个订阅，并创建自动下载器等
 func AddRSSRun(args []string) {
+	logger.Logger.Info("开始添加 RSS 订阅")
+
 	argsLen := len(args)
 	if argsLen == 0 {
-		log.Println("订阅地址必填")
+		color.Red("订阅地址必填")
+		color.Green("例如: beeflow rss add https://example.com/xxxx")
+		logger.Logger.Error("订阅地址必填")
+
 		return
 	}
 
@@ -69,10 +75,19 @@ func AddRSSRun(args []string) {
 	}
 
 	url := args[0]
-	savePath := filepath.Join(viper.GetString("save_base_path"), rssSavePath)
+	logger.Logger.Info(fmt.Sprintf("订阅地址: %s", url))
 
 	if mustNotContain == "" {
 		mustNotContain = "合集"
+	}
+
+	savePath := filepath.Join(viper.GetString("save_base_path"), rssSavePath)
+
+	qb.Login()
+	isError := qb.AddRSSFeed(url, backupPath)
+
+	if isError {
+		return
 	}
 
 	data := map[string]interface{}{
@@ -88,38 +103,26 @@ func AddRSSRun(args []string) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Println("Error:", err)
+		logger.Logger.Error(err.Error())
 		return
 	}
-
-	qb.Login()
-
-	log.Println(backupPath, "backupPath")
-	isError := qb.AddRSSFeed(url, backupPath)
-
-	if isError {
-		return
-	}
-
-	db := pkg.FindOrCreateData()
-
-	// 获取对应的名字和年份
-
-	db[savePath] = map[string]interface{}{
-		"mode":          renameMode,
-		"name":          name,
-		"year":          year,
-		"season":        season,
-		"rssSavePath":   rssSavePath,
-		"backupPath":    backupPath,
-		"group":         group,
-		"offset":        offset,
-		"resolution":    resolution,
-		"subtitle":      subtitle,
-		"multiVersion":  multiVersion,
-		"hdhiveShareId": hdhiveShareId,
-	}
-
 	qb.SetRSSRule(url, string(jsonData))
-	// 存储一份到 db json
-	pkg.UpdateData(db)
+
+	currentMediaData := map[string]interface{}{
+		"mode":           renameMode,
+		"name":           name,
+		"year":           year,
+		"season":         season,
+		"rss_save_path":  rssSavePath,
+		"backup_path":    backupPath,
+		"group":          group,
+		"offset":         offset,
+		"resolution":     resolution,
+		"subtitle":       subtitle,
+		"multi_version":  multiVersion,
+		"hdhive_shareId": hdhiveShareId,
+	}
+
+	viper.Set(fmt.Sprintf("data.%s", savePath), currentMediaData)
+	viper.WriteConfig()
 }
