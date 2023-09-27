@@ -22,7 +22,7 @@ func Notification(src string, data map[string]interface{}) {
 	telegramBotToken := viper.GetString("telegram_bot_token")
 	telegramChannelID := viper.GetString("telegram_channel_id")
 
-	resourceId, ok := data["hdhiveShareId"]
+	resourceId, ok := data["hdhive_share_id"]
 	if !ok {
 		return
 	}

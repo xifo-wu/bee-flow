@@ -109,18 +109,18 @@ func AddRSSRun(args []string) {
 	qb.SetRSSRule(url, string(jsonData))
 
 	currentMediaData := map[string]interface{}{
-		"mode":           renameMode,
-		"name":           name,
-		"year":           year,
-		"season":         season,
-		"rss_save_path":  rssSavePath,
-		"backup_path":    backupPath,
-		"group":          group,
-		"offset":         offset,
-		"resolution":     resolution,
-		"subtitle":       subtitle,
-		"multi_version":  multiVersion,
-		"hdhive_shareId": hdhiveShareId,
+		"mode":            renameMode,
+		"name":            name,
+		"year":            year,
+		"season":          season,
+		"rss_save_path":   rssSavePath,
+		"backup_path":     backupPath,
+		"group":           group,
+		"offset":          offset,
+		"resolution":      resolution,
+		"subtitle":        subtitle,
+		"multi_version":   multiVersion,
+		"hdhive_share_id": hdhiveShareId,
 	}
 
 	viper.Set(fmt.Sprintf("data.%s", savePath), currentMediaData)
