@@ -23,7 +23,7 @@ func Notification(src string, data map[string]interface{}) {
 	telegramChannelID := viper.GetString("telegram_channel_id")
 
 	resourceId, ok := data["hdhive_share_id"]
-	if !ok {
+	if !ok && resourceId != "" {
 		return
 	}
 
