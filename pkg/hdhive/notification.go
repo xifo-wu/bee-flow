@@ -34,7 +34,12 @@ func Notification(src string, data map[string]interface{}) {
 
 	multiVersion := pkg.GenerateMultiVersion(data)
 
+	hdhiveShareRemark := data["hdhive_share_remark"].(string)
+
 	remarkFormat := SE + " - " + multiVersion
+	if hdhiveShareRemark != "" {
+		remarkFormat = SE + "-" + hdhiveShareRemark
+	}
 
 	payload := make(map[string]interface{})
 	payload["chat_id"] = telegramChannelID

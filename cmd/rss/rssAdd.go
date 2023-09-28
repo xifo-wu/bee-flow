@@ -14,19 +14,20 @@ import (
 )
 
 var (
-	backupPath     string
-	renameMode     int
-	name           string
-	year           int
-	season         int
-	rssSavePath    string
-	group          string
-	offset         int
-	resolution     string
-	subtitle       string
-	multiVersion   string
-	hdhiveShareId  string
-	mustNotContain string
+	backupPath        string
+	renameMode        int
+	name              string
+	year              int
+	season            int
+	rssSavePath       string
+	group             string
+	offset            int
+	resolution        string
+	subtitle          string
+	multiVersion      string
+	hdhiveShareId     string
+	mustNotContain    string
+	hdhiveShareRemark string
 )
 
 var rssAddCmd = &cobra.Command{
@@ -54,6 +55,8 @@ func init() {
 	rssAddCmd.Flags().StringVarP(&multiVersion, "multiVersion", "", "", "多版本信息，mode2 专用")
 	rssAddCmd.Flags().StringVarP(&hdhiveShareId, "hdhiveShareId", "", "", "通过影巢通知到频道参数，影巢分享记录ID")
 	rssAddCmd.Flags().StringVarP(&mustNotContain, "mustNotContain", "", "", "RSS 订阅不可包含（填写正则表达式）")
+	rssAddCmd.Flags().StringVarP(&hdhiveShareRemark, "hdhiveShareRemark", "", "", "通过影巢通知到频道参数，影巢标题辈子")
+
 }
 
 // AddRSSRun 向 qbittorrent 添加一个订阅，并创建自动下载器等
@@ -109,18 +112,19 @@ func AddRSSRun(args []string) {
 	qb.SetRSSRule(url, string(jsonData))
 
 	currentMediaData := map[string]interface{}{
-		"mode":            renameMode,
-		"name":            name,
-		"year":            year,
-		"season":          season,
-		"rss_save_path":   rssSavePath,
-		"backup_path":     backupPath,
-		"group":           group,
-		"offset":          offset,
-		"resolution":      resolution,
-		"subtitle":        subtitle,
-		"multi_version":   multiVersion,
-		"hdhive_share_id": hdhiveShareId,
+		"mode":                renameMode,
+		"name":                name,
+		"year":                year,
+		"season":              season,
+		"rss_save_path":       rssSavePath,
+		"backup_path":         backupPath,
+		"group":               group,
+		"offset":              offset,
+		"resolution":          resolution,
+		"subtitle":            subtitle,
+		"multi_version":       multiVersion,
+		"hdhive_share_id":     hdhiveShareId,
+		"hdhive_share_remark": hdhiveShareRemark,
 	}
 
 	viper.Set(fmt.Sprintf("data.%s", savePath), currentMediaData)
