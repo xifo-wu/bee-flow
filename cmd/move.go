@@ -90,6 +90,11 @@ func MoveCmdFunc(args []string) {
 }
 
 func NotificationTGChannel(src string, data map[string]interface{}) {
+	resourceId, ok := data["hdhive_share_id"]
+	if !ok || resourceId == "" {
+		return
+	}
+
 	// 使用 filepath.Base 获取文件名称（包括扩展名）
 	fullFileName := filepath.Base(src)
 

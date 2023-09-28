@@ -23,7 +23,7 @@ func Notification(src string, data map[string]interface{}) {
 	telegramChannelID := viper.GetString("telegram_channel_id")
 
 	resourceId, ok := data["hdhive_share_id"]
-	if !ok && resourceId != "" {
+	if !ok || resourceId == "" {
 		return
 	}
 
@@ -61,11 +61,9 @@ func Notification(src string, data map[string]interface{}) {
 		log.Fatal(err)
 	}
 
-	// 偷懒每次都登录
-	// TODO 使用缓存 Token
-	apiToken := Login()
+	apiToken := viper.GetString("hdhive_token")
 	if apiToken == "" {
-		return
+		apiToken = Login()
 	}
 
 	req.Header.Add("Content-Type", "application/json")
