@@ -87,7 +87,7 @@ func AddRSSRun(args []string) {
 	savePath := filepath.Join(viper.GetString("save_base_path"), rssSavePath)
 
 	qb.Login()
-	isError := qb.AddRSSFeed(url, backupPath)
+	isError := qb.AddRSSFeed(url, savePath)
 
 	if isError {
 		return
