@@ -4,11 +4,11 @@ import (
 	"bee-flow/pkg/logger"
 	"bee-flow/pkg/qb"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"path/filepath"
 
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -36,6 +36,13 @@ var rssAddCmd = &cobra.Command{
 	Long: `[暂不支持相同路径]添加一个新的 RSS 订阅.
 更多订阅规则前往 QB 控制台进行修改
 	`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 1 {
+			logger.Logger.Error("订阅地址必填")
+			return errors.New("订阅地址必填")
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		AddRSSRun(args)
 	},
@@ -62,15 +69,6 @@ func init() {
 // AddRSSRun 向 qbittorrent 添加一个订阅，并创建自动下载器等
 func AddRSSRun(args []string) {
 	logger.Logger.Info("开始添加 RSS 订阅")
-
-	argsLen := len(args)
-	if argsLen == 0 {
-		color.Red("订阅地址必填")
-		color.Green("例如: beeflow rss add https://example.com/xxxx")
-		logger.Logger.Error("订阅地址必填")
-
-		return
-	}
 
 	if renameMode <= 4 && renameMode > 0 && (name == "" || year == 0) {
 		log.Println("重命名模式为 1 到 4 时 TMDB 链接必须填写。 请添加 -name 和 -year 标识")
