@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bee-flow/cmd/rss"
+	"bee-flow/cmd/version"
 	"bee-flow/pkg/logger"
 	"fmt"
 	"os"
@@ -46,6 +47,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&CfgFile, "config", "", "配置文件 (默认地址为 $HOME/.config/bee-flow/config.yaml)")
 
 	rootCmd.AddCommand(rss.RssCmd)
+	rootCmd.AddCommand(version.VersionCmd)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
